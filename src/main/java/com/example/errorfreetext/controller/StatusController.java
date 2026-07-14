@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Отвечает за обработку HTTP-запросов и формирование ответов.
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/apii")
 @RequiredArgsConstructor
 public class StatusController {
 

@@ -1,12 +1,24 @@
 package com.example.errorfreetext.service;
 
 import com.example.errorfreetext.dto.StatusResponse;
+import com.example.errorfreetext.repository.StatusRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.time.Instant;
 
 /**
- * Business layer (слой бизнес-логики).
- * Описывает бизнес-операции приложения.
+ * Реализация бизнес-логики.
+ * Использует слой доступа к данным (repository).
  */
-public interface StatusService {
+@Service
+@RequiredArgsConstructor
+public class StatusService {
 
-    StatusResponse getStatus();
+    private final StatusRepository statusRepository;
+
+    public StatusResponse getStatus() {
+        String status = statusRepository.fetchStatus();
+        return new StatusResponse(status, Instant.now());
+    }
 }

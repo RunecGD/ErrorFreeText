@@ -1,10 +1,15 @@
 package com.example.errorfreetext.repository;
 
-/**
- * Data access layer (слой доступа к данным).
- * Отвечает за получение/хранение данных (БД, кэш, внешние источники).
- */
-public interface StatusRepository {
+import org.springframework.stereotype.Repository;
 
-    String fetchStatus();
+/**
+ * Простейшая реализация слоя доступа к данным.
+ * Здесь в дальнейшем можно подключить БД (PostgreSQL уже есть в зависимостях).
+ */
+@Repository
+public class StatusRepository {
+
+    public String fetchStatus() {
+        return "UP";
+    }
 }
