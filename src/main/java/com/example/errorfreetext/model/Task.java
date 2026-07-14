@@ -1,20 +1,20 @@
 package com.example.errorfreetext.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
-import java.util.UUID;
-
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-@Getter
-@Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 @Entity
 @Table(name = "tasks")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -26,21 +26,19 @@ public class Task {
     @Column(columnDefinition = "TEXT")
     private String correctedText;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TaskStatus status;
+
     @Column(nullable = false)
     private String language;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TaskStatus status = TaskStatus.NEW;
-
+    @Column(columnDefinition = "TEXT")
     private String errorMessage;
-    private Integer errorCode;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
-
 }

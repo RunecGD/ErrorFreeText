@@ -2,7 +2,7 @@ package com.example.errorfreetext.model;
 
 public enum TaskStatus {
     NEW,
-    PROCESSING,
+    IN_PROGRESS,
     COMPLETED,
     ERROR
 }

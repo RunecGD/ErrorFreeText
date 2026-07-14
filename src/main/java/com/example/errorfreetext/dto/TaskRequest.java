@@ -1,16 +1,18 @@
 package com.example.errorfreetext.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class TaskRequest {
+    @NotBlank(message = "Text cannot be blank")
+    @Size(min = 3, message = "Text must be at least 3 characters long")
+    @Pattern(regexp = ".*[a-zA-Zа-яА-Я].*", message = "Text must contain at least one letter")
     private String text;
 
-    private String language; // или String
+    @NotBlank(message = "Language is required")
+    @Pattern(regexp = "^(EN|RU)$", message = "Language must be EN or RU")
+    private String language;
 }
