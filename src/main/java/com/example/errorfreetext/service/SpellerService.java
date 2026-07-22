@@ -6,7 +6,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 @Slf4j
@@ -63,8 +65,6 @@ public class SpellerService {
                     .build()
                     .toUriString();
 
-            // Yandex checkTexts returns an array of arrays of corrections
-            // Example structure: [[{"word":"err","s":["correct"],...}]]
             Object[][] response = restTemplate.postForObject(url, null, Object[][].class);
 
             if (response == null || response.length == 0 || response[0].length == 0) {
@@ -79,7 +79,6 @@ public class SpellerService {
     }
 
     private String applyCorrections(String original, Object[] corrections) {
-        // Yandex returns errors with position. We iterate backwards to replace without breaking indices.
         StringBuilder sb = new StringBuilder(original);
         List<Map<String, Object>> sortedCorrections = new ArrayList<>();
 

@@ -8,9 +8,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
+
+import com.example.errorfreetext.service.TaskStatusManager;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.beans.factory.annotation.Value;
 
 @Slf4j
 @Component
@@ -18,38 +22,38 @@ import java.util.List;
 public class TaskScheduler {
     private final TaskRepository taskRepository;
     private final SpellerService spellerService;
+    private final TaskStatusManager statusManager;
+
+    @Value("${app.scheduler.batch-size:100}")
+    private int batchSize;
 
     @Scheduled(fixedRateString = "${app.scheduler.rate-ms}")
     public void processNewTasks() {
-        List<Task> newTasks = taskRepository.findByStatus(TaskStatus.NEW);
-        if (newTasks.isEmpty()) return;
+        List<Task> newTasks = taskRepository.findByStatus(TaskStatus.NEW, PageRequest.of(0, batchSize));
 
-        log.info("Found {} new tasks to process", newTasks.size());
+        if (newTasks.isEmpty()) {
+            return;
+        }
+
+        log.info("Processing batch of {} tasks", newTasks.size());
 
         for (Task task : newTasks) {
-            processTask(task);
+            UUID id = task.getId();
+            try {
+                statusManager.markAsInProgress(id);
+
+                String corrected = spellerService.correctText(task.getOriginalText(), task.getLanguage());
+
+                statusManager.markAsCompleted(id, corrected);
+                log.debug("Task {} marked as COMPLETED", id);
+            } catch (Exception e) {
+                log.error("Failed to process task {}: {}", id, e.getMessage());
+                try {
+                    statusManager.markAsFailed(id, e.getMessage());
+                } catch (Exception dbEx) {
+                    log.error("Critical: Could not save ERROR status for task {}", id, dbEx);
+                }
+            }
         }
-    }
-
-    private void processTask(Task task) {
-        try {
-            updateStatus(task, TaskStatus.IN_PROGRESS, null);
-
-            String corrected = spellerService.correctText(task.getOriginalText(), task.getLanguage());
-
-            task.setCorrectedText(corrected);
-            updateStatus(task, TaskStatus.COMPLETED, null);
-            log.info("Task {} completed successfully", task.getId());
-        } catch (Exception e) {
-            log.error("Failed to process task {}", task.getId(), e);
-            updateStatus(task, TaskStatus.ERROR, e.getMessage());
-        }
-    }
-
-    @Transactional
-    protected void updateStatus(Task task, TaskStatus status, String errorMessage) {
-        task.setStatus(status);
-        task.setErrorMessage(errorMessage);
-        taskRepository.save(task);
     }
 }

@@ -1,4 +1,4 @@
-package com.example.errorfreetext.exception;
+package com.example.errorfreetext.dto;
 
 import lombok.Builder;
 import lombok.Data;

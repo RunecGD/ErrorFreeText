@@ -18,13 +18,15 @@ public class TaskService {
     private final TaskRepository taskRepository;
 
     @Transactional
-    public UUID createTask(TaskRequest request) {
+    public TaskResponse createTask(TaskRequest request) {
         Task task = Task.builder()
                 .originalText(request.getText())
                 .language(request.getLanguage())
                 .status(TaskStatus.NEW)
                 .build();
-        return taskRepository.save(task).getId();
+        return TaskResponse.builder()
+                .id(taskRepository.save(task).getId())
+                .build();
     }
 
     public TaskResponse getTaskResponse(UUID id) {
