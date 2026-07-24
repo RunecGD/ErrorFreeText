@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class TaskStatusManager {
+public class TaskStatusService {
     private final TaskRepository taskRepository;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
